@@ -1,9 +1,9 @@
 # lpunpack android lpmake
 
 x86 or x86_64:
-    apt install clang zlib
-    ./make.sh
+sudo apt install clang zlib1g-dev
+./make.sh
 
 arm or arm64:
-    apt install clang
-    ./make.sh
+sudo apt install clang
+./make.sh
