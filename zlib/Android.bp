@@ -1,0 +1,197 @@
+srcs_opt = [
+    "adler32_simd.c",
+    // See https://chromium-review.googlesource.com/749732.
+// TODO: causes `atest org.apache.harmony.tests.java.util.zip.DeflaterTest` failures.
+//    "contrib/optimizations/inffast_chunk.c",
+//    "contrib/optimizations/inflate.c",
+    // This file doesn't build for non-neon, so it can't be in the main srcs.
+    "cpu_features.c",
+    "crc32_simd.c",
+]
+
+cflags_arm = [
+    // Since we're building for the platform, we claim to be Linux rather than
+    // Android so we use getauxval() directly instead of the NDK
+    // android_getCpuFeatures which isn't available to us anyway.
+    "-DARMV8_OS_LINUX",
+    // Testing with zlib_bench shows -O3 is a win for ARM but a bit of a wash
+    // for x86, so match the BUILD file in only enabling this for ARM.
+    "-O3",
+]
+cflags_arm_neon = [
+    // We no longer support non-Neon platform builds, but the NDK just has one libz.
+    "-DADLER32_SIMD_NEON",
+// TODO: causes `atest org.apache.harmony.tests.java.util.zip.DeflaterTest` failures.
+//    "-DINFLATE_CHUNK_SIMD_NEON",
+    // HWCAP_CRC32 is checked at runtime, so it's okay to turn crc32
+    // acceleration on for both 32- and 64-bit.
+    "-DCRC32_ARMV8_CRC32",
+]
+cflags_arm64 = cflags_arm + cflags_arm_neon
+
+cflags_x86 = [
+    // See ARMV8_OS_LINUX above.
+    "-DX86_NOT_WINDOWS",
+    // Android's x86/x86-64 ABI includes SSE2 and SSSE3.
+    "-DADLER32_SIMD_SSSE3",
+// TODO: see arm above.
+//    "-DINFLATE_CHUNK_SIMD_SSE2",
+    // TODO: ...but the host build system defaults don't match our official ABI.
+    "-mssse3",
+    // PCLMUL isn't in the ABI, but it won't actually be used unless CPUID
+    // reports that the processor really does have the instruction.
+    "-mpclmul",
+    "-DCRC32_SIMD_SSE42_PCLMUL",
+]
+srcs_x86 = [
+    "crc_folding.c",
+    "fill_window_sse.c",
+] + srcs_opt
+
+// This optimization is applicable to arm64 and x86-64.
+cflags_64 = ["-DINFLATE_CHUNK_READ_64LE"]
+
+cc_defaults {
+    name: "libz_defaults",
+
+    cflags: [
+        // We do support hidden visibility, so turn that on.
+        "-DHAVE_HIDDEN",
+        // We do support const, so turn that on.
+        "-DZLIB_CONST",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused",
+        "-Wno-unused-parameter",
+    ],
+    stl: "none",
+    export_include_dirs: ["."],
+    srcs: [
+        "adler32.c",
+        "compress.c",
+        "crc32.c",
+        "deflate.c",
+        "gzclose.c",
+        "gzlib.c",
+        "gzread.c",
+        "gzwrite.c",
+        "infback.c",
+        "inffast.c",
+        "inflate.c",
+        "inftrees.c",
+        "trees.c",
+        "uncompr.c",
+        "zutil.c",
+    ],
+
+    arch: {
+        arm: {
+            // TODO: This is to work around b/24465209. Remove after root cause
+            // is fixed.
+            pack_relocations: false,
+            ldflags: ["-Wl,--hash-style=both"],
+
+            cflags: cflags_arm,
+            neon: {
+                cflags: cflags_arm_neon,
+                srcs: srcs_opt,
+            }
+        },
+        arm64: {
+            cflags: cflags_arm64 + cflags_64,
+            srcs: srcs_opt,
+        },
+        x86: {
+            cflags: cflags_x86,
+            srcs: srcs_x86,
+        },
+        x86_64: {
+            cflags: cflags_x86 + cflags_64,
+            srcs: srcs_x86,
+        },
+    },
+}
+
+cc_library {
+    name: "libz",
+    defaults: ["libz_defaults"],
+
+    host_supported: true,
+    unique_host_soname: true,
+    static_ndk_lib: true,
+
+    vendor_available: true,
+    vndk: {
+        enabled: true,
+        support_system_process: true,
+    },
+    ramdisk_available: true,
+    recovery_available: true,
+    native_bridge_supported: true,
+
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+// libz_current allows modules building against the NDK to have access to zlib
+// API that's not available from the NDK libz.
+cc_library_static {
+    name: "libz_current",
+    defaults: ["libz_defaults"],
+    sdk_version: "current",
+}
+
+cc_binary_host {
+    name: "minigzip",
+    srcs: ["contrib/minigzip/minigzip.c"],
+    cflags: ["-Wall", "-Werror", "-DUSE_MMAP"],
+    static_libs: ["libz"],
+    stl: "none",
+}
+
+cc_binary {
+    name: "zlib_bench",
+    srcs: ["contrib/bench/zlib_bench.cc"],
+    cflags: ["-Wall", "-Werror"],
+    host_supported: true,
+    shared_libs: ["libz"],
+    // We build zlib_bench32 and zlib_bench64 so it's easy to test LP32.
+    compile_multilib: "both",
+    multilib: {
+        lib32: { suffix: "32", },
+        lib64: { suffix: "64", },
+    },
+}
+
+// This module is defined in development/ndk/Android.bp. Updating these headers
+// to be usable for any API level is going to be some work (at the very least,
+// there's a ZLIB_VERNUM that will need to be handled since early versions of
+// Android did not have all the APIs that calling code will use if this is set
+// to the current value.
+//
+// The NDK never updated the zlib headers when the platform updated, so until we
+// solve this the NDK will continue shipping the old headers.
+//
+// ndk_headers {
+//     name: "libz_headers",
+//     from: "src",
+//     to: "",
+//     srcs: [
+//         "src/zconf.h",
+//         "src/zlib.h",
+//     ],
+//     license: "NOTICE",
+// }
+
+ndk_library {
+    name: "libz",
+    symbol_file: "libz.map.txt",
+    first_version: "9",
+    unversioned_until: "current",
+}
