@@ -37,11 +37,15 @@
 #include <cutils/android_get_control_file.h>
 #include <fs_mgr.h>
 #endif
+#ifdef ENABLE_JSON
 #include <jsonpb/jsonpb.h>
+#endif
 #include <liblp/builder.h>
 #include <liblp/liblp.h>
 
+#ifdef ENABLE_JSON
 #include "dynamic_partitions_device_info.pb.h"
+#endif
 using namespace android;
 using namespace android::fs_mgr;
 
@@ -56,7 +60,9 @@ static int usage(int /* argc */, char* argv[], std::ostream& cerr) {
             "\n"
             "Options:\n"
             "  -s, --slot=N     Slot number or suffix.\n"
+#ifdef ENABLE_JSON
             "  -j, --json       Print in JSON format.\n"
+#endif
             "  -d, --dump-metadata-size\n"
             "                   Print the space reserved for metadata to stdout\n"
             "                   in bytes.\n"
@@ -132,6 +138,7 @@ static std::string RemoveSuffix(const std::string& s, const std::string& suffix)
     return s;
 }
 
+#ifdef ENABLE_JSON
 // Merge proto with information from metadata.
 static bool MergeMetadata(const LpMetadata* metadata,
                           DynamicPartitionsDeviceInfoProto* proto) {
@@ -268,6 +275,7 @@ static int PrintJson(const LpMetadata* metadata, std::ostream& cout,
     cout << *error_or_json;
     return EX_OK;
 }
+#endif
 
 static int DumpMetadataSize(const LpMetadata& metadata, std::ostream& cout) {
     auto super_device = GetMetadataSuperBlockDevice(metadata);
@@ -393,7 +401,9 @@ int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {
         { "all", no_argument, nullptr, 'a' },
         { "slot", required_argument, nullptr, 's' },
         { "help", no_argument, nullptr, 'h' },
+#ifdef ENABLE_JSON
         { "json", no_argument, nullptr, 'j' },
+#endif
         { "dump-metadata-size", no_argument, nullptr, 'd' },
         { "is-super-empty", no_argument, nullptr, 'e' },
         { nullptr, 0, nullptr, 0 },
@@ -405,7 +415,9 @@ int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {
 
     int rv;
     int index;
+#ifdef ENABLE_JSON
     bool json = false;
+#endif
     bool dump_metadata_size = false;
     bool dump_all = false;
     std::optional<uint32_t> slot;
@@ -432,9 +444,11 @@ int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {
             case 'd':
                 dump_metadata_size = true;
                 break;
+#ifdef ENABLE_JSON
             case 'j':
                 json = true;
                 break;
+#endif
             case '?':
             case ':':
                 return usage(argc, argv, cerr);
@@ -446,11 +460,12 @@ int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {
             cerr << "Cannot specify both --all and --slot.\n";
             return usage(argc, argv, cerr);
         }
+#ifdef ENABLE_JSON
         if (json) {
             cerr << "Cannot specify both --all and --json.\n";
             return usage(argc, argv, cerr);
         }
-
+#endif
         // When dumping everything always start from the first slot.
         slot = 0;
     }
@@ -486,11 +501,13 @@ int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {
 
     auto pt = ReadDeviceOrFile(super_path, slot.value());
 
+#ifdef ENABLE_JSON
     // --json option doesn't require metadata to be present.
     if (json) {
         return PrintJson(pt.get(), cout, cerr);
     }
-
+#endif
+    
     if (!pt) {
         cerr << "Failed to read metadata.\n";
         return EX_NOINPUT;
