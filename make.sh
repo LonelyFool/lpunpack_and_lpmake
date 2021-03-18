@@ -296,8 +296,16 @@ if [ "$HOSTTYPE" = i686 ] || [ "$HOSTTYPE" = x86_64 ];then
   clang++ -static -std=c++17 -I../include -o ../lpunpack lpunpack.cc ../liblp/liblp.a ../libsparse/libsparse.a -lz ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
 
   clang++ -static -std=c++17 -I../include -o ../lpmake lpmake.cc ../liblp/liblp.a ../libsparse/libsparse.a -lz ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
+
+  clang++ -static -std=c++17 -I../include -o ../lpdump lpdump_host.cc lpdump.cc ../liblp/liblp.a ../libsparse/libsparse.a -lz ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
+
+  clang++ -static -std=c++17 -I../include -o ../lpadd lpadd.cc ../liblp/liblp.a ../libsparse/libsparse.a -lz ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
 else
   clang++ -static -std=c++17 -I../include -o ../lpunpack lpunpack.cc ../liblp/liblp.a ../libsparse/libsparse.a ../zlib/libz.a ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
 
   clang++ -static -std=c++17 -I../include -o ../lpmake lpmake.cc ../liblp/liblp.a ../libsparse/libsparse.a ../zlib/libz.a ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
+
+  clang++ -static -std=c++17 -I../include -o ../lpdump lpdump_host.cc lpdump.c ../liblp/liblp.a ../libsparse/libsparse.a ../zlib/libz.a ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
+
+  clang++ -static -std=c++17 -I../include -o ../lpadd lpadd.cc ../liblp/liblp.a ../libsparse/libsparse.a ../zlib/libz.a ../base/libbase.a ../liblog/liblog.a ../crypto/libcrypto.a ../libcrypto_utils/libcrypto_utils.a ../ext4_utils/libext4_utils.a -lpthread
 fi
