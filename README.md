@@ -7,3 +7,4 @@ sudo apt install clang zlib1g-dev
 arm or arm64:
 sudo apt install clang
 ./make.sh
+
