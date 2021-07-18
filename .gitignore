@@ -1,7 +1,0 @@
-*.img
-*.o
-*.a
-lpdump
-lpmake
-lpunpack
-lpadd
