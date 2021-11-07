@@ -10,3 +10,5 @@ sudo apt install clang
 
 ./make.sh
 
+source code from aosp
+
