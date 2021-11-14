@@ -29,6 +29,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <android-base/parseint.h>
 #include <android-base/properties.h>
@@ -384,7 +385,7 @@ static std::unique_ptr<LpMetadata> ReadDeviceOrFile(const std::string& path, uin
     if (IsEmptySuperImage(path)) {
         return ReadFromImageFile(path);
     }
-    return ReadMetadata(path, slot);
+    return ReadMetadata(std::filesystem::absolute(path), slot);
 }
 
 int LpdumpMain(int argc, char* argv[], std::ostream& cout, std::ostream& cerr) {

@@ -35,13 +35,13 @@ case "$OSTYPE" in
     src="errors_windows.cpp utf8.cpp"
   ;;
 esac
-$CC -std=c++17 -I../include -Iinclude ${CFLAGS} -c abi_compatibility.cpp chrono_utils.cpp file.cpp liblog_symbols.cpp logging.cpp mapped_file.cpp parsebool.cpp parsenetaddress.cpp process.cpp properties.cpp stringprintf.cpp strings.cpp threads.cpp test_utils.cpp ${src}
+$CC -std=c++17 -I../include ${CFLAGS} -c abi_compatibility.cpp chrono_utils.cpp file.cpp liblog_symbols.cpp logging.cpp mapped_file.cpp parsebool.cpp parsenetaddress.cpp process.cpp properties.cpp stringprintf.cpp strings.cpp threads.cpp test_utils.cpp ${src}
 $AR rcs ../lib/libbase.a *.o
 rm -r *.o
 unset src
 
 cd ../libsparse
-$CC -std=c++17 -I../include -Iinclude ${CFLAGS} -c backed_block.cpp output_file.cpp sparse.cpp sparse_crc32.cpp sparse_err.cpp sparse_read.cpp
+$CC -std=c++17 -I../include ${CFLAGS} -c backed_block.cpp output_file.cpp sparse.cpp sparse_crc32.cpp sparse_err.cpp sparse_read.cpp
 $AR rcs ../lib/libsparse.a *.o
 rm -r *.o
 
@@ -430,6 +430,97 @@ fi
 $AR rcs ../lib/libcrypto.a *.o
 rm -r *.o
 
+cd ../protobuf
+$CC -std=c++17 -Isrc -Iandroid -DHAVE_ZLIB=1 ${CFLAGS} -c \
+src/google/protobuf/any_lite.cc \
+src/google/protobuf/arena.cc \
+src/google/protobuf/extension_set.cc \
+src/google/protobuf/generated_enum_util.cc \
+src/google/protobuf/generated_message_table_driven_lite.cc \
+src/google/protobuf/generated_message_util.cc \
+src/google/protobuf/implicit_weak_message.cc \
+src/google/protobuf/io/coded_stream.cc \
+src/google/protobuf/io/io_win32.cc \
+src/google/protobuf/io/strtod.cc \
+src/google/protobuf/io/zero_copy_stream.cc \
+src/google/protobuf/io/zero_copy_stream_impl.cc \
+src/google/protobuf/io/zero_copy_stream_impl_lite.cc \
+src/google/protobuf/message_lite.cc \
+src/google/protobuf/parse_context.cc \
+src/google/protobuf/repeated_field.cc \
+src/google/protobuf/stubs/bytestream.cc \
+src/google/protobuf/stubs/common.cc \
+src/google/protobuf/stubs/int128.cc \
+src/google/protobuf/stubs/status.cc \
+src/google/protobuf/stubs/statusor.cc \
+src/google/protobuf/stubs/stringpiece.cc \
+src/google/protobuf/stubs/stringprintf.cc \
+src/google/protobuf/stubs/structurally_valid.cc \
+src/google/protobuf/stubs/strutil.cc \
+src/google/protobuf/stubs/time.cc \
+src/google/protobuf/wire_format_lite.cc \
+src/google/protobuf/any.cc \
+src/google/protobuf/any.pb.cc \
+src/google/protobuf/api.pb.cc \
+src/google/protobuf/compiler/importer.cc \
+src/google/protobuf/compiler/parser.cc \
+src/google/protobuf/descriptor.cc \
+src/google/protobuf/descriptor.pb.cc \
+src/google/protobuf/descriptor_database.cc \
+src/google/protobuf/duration.pb.cc \
+src/google/protobuf/dynamic_message.cc \
+src/google/protobuf/empty.pb.cc \
+src/google/protobuf/extension_set_heavy.cc \
+src/google/protobuf/field_mask.pb.cc \
+src/google/protobuf/generated_message_reflection.cc \
+src/google/protobuf/generated_message_table_driven.cc \
+src/google/protobuf/io/gzip_stream.cc \
+src/google/protobuf/io/printer.cc \
+src/google/protobuf/io/tokenizer.cc \
+src/google/protobuf/map_field.cc \
+src/google/protobuf/message.cc \
+src/google/protobuf/reflection_ops.cc \
+src/google/protobuf/service.cc \
+src/google/protobuf/source_context.pb.cc \
+src/google/protobuf/struct.pb.cc \
+src/google/protobuf/stubs/mathlimits.cc \
+src/google/protobuf/stubs/substitute.cc \
+src/google/protobuf/text_format.cc \
+src/google/protobuf/timestamp.pb.cc \
+src/google/protobuf/type.pb.cc \
+src/google/protobuf/unknown_field_set.cc \
+src/google/protobuf/util/delimited_message_util.cc \
+src/google/protobuf/util/field_comparator.cc \
+src/google/protobuf/util/field_mask_util.cc \
+src/google/protobuf/util/internal/datapiece.cc \
+src/google/protobuf/util/internal/default_value_objectwriter.cc \
+src/google/protobuf/util/internal/error_listener.cc \
+src/google/protobuf/util/internal/field_mask_utility.cc \
+src/google/protobuf/util/internal/json_escaping.cc \
+src/google/protobuf/util/internal/json_objectwriter.cc \
+src/google/protobuf/util/internal/json_stream_parser.cc \
+src/google/protobuf/util/internal/object_writer.cc \
+src/google/protobuf/util/internal/proto_writer.cc \
+src/google/protobuf/util/internal/protostream_objectsource.cc \
+src/google/protobuf/util/internal/protostream_objectwriter.cc \
+src/google/protobuf/util/internal/type_info.cc \
+src/google/protobuf/util/internal/type_info_test_helper.cc \
+src/google/protobuf/util/internal/utility.cc \
+src/google/protobuf/util/json_util.cc \
+src/google/protobuf/util/message_differencer.cc \
+src/google/protobuf/util/time_util.cc \
+src/google/protobuf/util/type_resolver_util.cc \
+src/google/protobuf/wire_format.cc \
+src/google/protobuf/wrappers.pb.cc
+
+$AR rcs ../lib/libprotobuf-cpp-full.a *.o
+rm -r *.o
+
+cd ../libjsonpb
+$CC -std=c++17 -I../include -Iparse/include ${CFLAGS} -c parse/jsonpb.cpp
+$AR rcs ../lib/libjsonpbparse.a *.o
+rm -r *.o
+
 cd ../../partition_tools
 case "$OSTYPE" in
   linux* | darwin*)
@@ -447,9 +538,12 @@ ${CPP} -std=c++17 -I../lib/include ${CFLAGS} -D_FILE_OFFSET_BITS=64 -o ../bin/lp
 
 ${CPP} -std=c++17 -I../lib/include ${CFLAGS} -D_FILE_OFFSET_BITS=64 -o ../bin/lpunpack lpunpack.cc ../lib/lib/liblp.a ../lib/lib/libsparse.a ../lib/lib/libext4_utils.a ../lib/lib/libz.a ../lib/lib/libbase.a ../lib/lib/fmtlib.a ../lib/lib/liblog.a ../lib/lib/libcrypto_utils.a ../lib/lib/libcrypto.a -lpthread ${LDFLAGS}
 
+${CPP} -std=c++17 -I../lib/include ${CFLAGS} -D_FILE_OFFSET_BITS=64 -o ../bin/lpdump lpdump.cc dynamic_partitions_device_info.pb.cc lpdump_host.cc ../lib/lib/liblp.a ../lib/lib/libsparse.a ../lib/lib/libext4_utils.a ../lib/lib/libz.a ../lib/lib/libbase.a ../lib/lib/fmtlib.a ../lib/lib/liblog.a ../lib/lib/libcrypto_utils.a ../lib/lib/libcrypto.a ../lib/lib/libjsonpbparse.a ../lib/lib/libprotobuf-cpp-full.a -lpthread ${LDFLAGS}
+
 cd ..
-rm -r lib/lib
+rm -rf lib/lib
 $STRIP bin/lpmake
 $STRIP bin/lpadd
 $STRIP bin/lpflash
 $STRIP bin/lpunpack
+$STRIP bin/lpdump
