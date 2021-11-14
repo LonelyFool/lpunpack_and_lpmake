@@ -516,6 +516,11 @@ src/google/protobuf/wrappers.pb.cc
 $AR rcs ../lib/libprotobuf-cpp-full.a *.o
 rm -r *.o
 
+cd ../libjsonpb
+$CC -std=c++17 -I../include -Iparse/include ${CFLAGS} -c parse/jsonpb.cpp
+$AR rcs ../lib/libjsonpbparse.a *.o
+rm -r *.o
+
 cd ../../partition_tools
 case "$OSTYPE" in
   linux* | darwin*)
