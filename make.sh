@@ -35,13 +35,13 @@ case "$OSTYPE" in
     src="errors_windows.cpp utf8.cpp"
   ;;
 esac
-$CC -std=c++17 -I../include -Iinclude ${CFLAGS} -c abi_compatibility.cpp chrono_utils.cpp file.cpp liblog_symbols.cpp logging.cpp mapped_file.cpp parsebool.cpp parsenetaddress.cpp process.cpp properties.cpp stringprintf.cpp strings.cpp threads.cpp test_utils.cpp ${src}
+$CC -std=c++17 -I../include ${CFLAGS} -c abi_compatibility.cpp chrono_utils.cpp file.cpp liblog_symbols.cpp logging.cpp mapped_file.cpp parsebool.cpp parsenetaddress.cpp process.cpp properties.cpp stringprintf.cpp strings.cpp threads.cpp test_utils.cpp ${src}
 $AR rcs ../lib/libbase.a *.o
 rm -r *.o
 unset src
 
 cd ../libsparse
-$CC -std=c++17 -I../include -Iinclude ${CFLAGS} -c backed_block.cpp output_file.cpp sparse.cpp sparse_crc32.cpp sparse_err.cpp sparse_read.cpp
+$CC -std=c++17 -I../include ${CFLAGS} -c backed_block.cpp output_file.cpp sparse.cpp sparse_crc32.cpp sparse_err.cpp sparse_read.cpp
 $AR rcs ../lib/libsparse.a *.o
 rm -r *.o
 
