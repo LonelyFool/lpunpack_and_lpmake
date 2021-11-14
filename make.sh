@@ -541,7 +541,7 @@ ${CPP} -std=c++17 -I../lib/include ${CFLAGS} -D_FILE_OFFSET_BITS=64 -o ../bin/lp
 ${CPP} -std=c++17 -I../lib/include ${CFLAGS} -D_FILE_OFFSET_BITS=64 -o ../bin/lpdump lpdump.cc dynamic_partitions_device_info.pb.cc lpdump_host.cc ../lib/lib/liblp.a ../lib/lib/libsparse.a ../lib/lib/libext4_utils.a ../lib/lib/libz.a ../lib/lib/libbase.a ../lib/lib/fmtlib.a ../lib/lib/liblog.a ../lib/lib/libcrypto_utils.a ../lib/lib/libcrypto.a ../lib/lib/libjsonpbparse.a ../lib/lib/libprotobuf-cpp-full.a -lpthread ${LDFLAGS}
 
 cd ..
-rm -r lib/lib
+rm -rf lib/lib
 $STRIP bin/lpmake
 $STRIP bin/lpadd
 $STRIP bin/lpflash
